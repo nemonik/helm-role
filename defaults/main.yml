@@ -1,0 +1,4 @@
+---
+# defaults file for helm-cli
+helm_cli_version: 3.2.1
+helm_cli_checksum: 018f9908cb950701a5d59e757653a790c66d8eda288625dbb185354ca6f41f6b
