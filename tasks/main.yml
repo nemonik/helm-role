@@ -6,9 +6,18 @@
     path: /vagrant/cache/files/helm-v{{ helm_cli_version }}-linux-amd64.tar.gz
   register: result
 
-- name: create /vagrant/cache/images, if it doesn't exist
+
+- name: set cache_path to /tmp if not set
+  set_fact:
+    cache_path: /tmp
+  when:
+    - cache_path is not defined
+  tags:
+    - helm
+
+- name: create {{ cache_path }}/files, if it doesn't exist
   file:
-    path: /vagrant/cache/files
+    path: "{{ cache_path }}/files"
     state: directory
 
 - name: cache Helm {{ helm_cli_version }} CLI archive
@@ -18,13 +27,13 @@
 
     trap "{ rm -Rf $tempfile; }" EXIT
 
-    if [[ "windows" == "{{ host_os }}" ]]; then
+    if [[ "windows" == "{{ host_os | default('') }}" && "{{ cache_path }}" != "/tmp" ]]; then
       sudo su;
     fi
 
     curl https://get.helm.sh/helm-v{{ helm_cli_version }}-linux-amd64.tar.gz -o ${tempfile}/helm-v{{ helm_cli_version }}-linux-amd64.tar.gz
 
-    cp -f ${tempfile}/helm-v{{ helm_cli_version }}-linux-amd64.tar.gz /vagrant/cache/files/.
+    cp -f ${tempfile}/helm-v{{ helm_cli_version }}-linux-amd64.tar.gz {{ cache_path }}/files/.
 
     echo "{{ helm_cli_checksum }} /vagrant/cache/files/helm-v{{ helm_cli_version }}-linux-amd64.tar.gz" | sha256sum -c
   args:
@@ -38,7 +47,7 @@
 
     trap "{ rm -Rf $tempfile; }" EXIT
 
-    cp /vagrant/cache/files/helm-v{{ helm_cli_version }}-linux-amd64.tar.gz ${tempfile}
+    cp {{ cache_path }}/files/helm-v{{ helm_cli_version }}-linux-amd64.tar.gz ${tempfile}
 
     cd ${tempfile}
 
