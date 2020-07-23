@@ -11,7 +11,7 @@
 
 - name: check if helm-v{{ helm_cli_version }}-linux-amd64.tar.gz file exists
   stat: 
-    path: {{ cache_path }}/files/helm-v{{ helm_cli_version }}-linux-amd64.tar.gz
+    path: "{{ cache_path }}/files/helm-v{{ helm_cli_version }}-linux-amd64.tar.gz"
   register: result
 
 - name: create {{ cache_path }}/files, if it doesn't exist
