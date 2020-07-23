@@ -1,12 +1,6 @@
 ---
 # tasks file for helm-cli
 
-- name: check if helm-v{{ helm_cli_version }}-linux-amd64.tar.gz file exists
-  stat: 
-    path: /vagrant/cache/files/helm-v{{ helm_cli_version }}-linux-amd64.tar.gz
-  register: result
-
-
 - name: set cache_path to /tmp if not set
   set_fact:
     cache_path: /tmp
@@ -14,6 +8,11 @@
     - cache_path is not defined
   tags:
     - helm
+
+- name: check if helm-v{{ helm_cli_version }}-linux-amd64.tar.gz file exists
+  stat: 
+    path: {{ cache_path }}/files/helm-v{{ helm_cli_version }}-linux-amd64.tar.gz
+  register: result
 
 - name: create {{ cache_path }}/files, if it doesn't exist
   file:
@@ -35,7 +34,7 @@
 
     cp -f ${tempfile}/helm-v{{ helm_cli_version }}-linux-amd64.tar.gz {{ cache_path }}/files/.
 
-    echo "{{ helm_cli_checksum }} /vagrant/cache/files/helm-v{{ helm_cli_version }}-linux-amd64.tar.gz" | sha256sum -c
+    echo "{{ helm_cli_checksum }} {{ cache_path }}/files/helm-v{{ helm_cli_version }}-linux-amd64.tar.gz" | sha256sum -c
   args:
     executable: /bin/bash
   when: result.stat.exists != true
